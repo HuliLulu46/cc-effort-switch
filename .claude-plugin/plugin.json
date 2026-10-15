@@ -1,0 +1,6 @@
+{
+  "name": "cc-effort-switch",
+  "version": "0.2.0",
+  "description": "Step the main thread's reasoning effort with Alt/Option+Up and Alt/Option+Down, shown in the prompt footer",
+  "types": "./types/index.d.ts"
+}
