@@ -33,7 +33,15 @@ function engine(on: On, settings: Record<string, unknown> = {}) {
   on('command.run', async () => ({ text: '' }))
   on('ui.render', async ($, e) => {
     const { Text } = $.ui.resolve(e)
-    if (e.component === 'SessionMode') return <Text dimColor>{e.props.modes.join(' & ')}</Text>
+    if (e.component === 'SessionMode') {
+      const { Box } = $.ui.resolve(e)
+      return (
+        <Box>
+          <Text dimColor>{e.props.modes.join(' & ')}</Text>
+          <Text key="beneath">budget meter</Text>
+        </Box>
+      )
+    }
     return <Text key="beneath">from beneath</Text>
   })
   return { sent, useModel: (next: string) => (model = next) }
@@ -69,6 +77,14 @@ for (const surface of ['terminal', 'desktop'] as const) {
     const band = await $.ui.mount({ ...BAND, surface })
     expect(await band.find({ type: 'Button', key: 'effort-up' })).toBeDefined()
     expect(await band.find({ text: 'from beneath' })).toBeDefined()
+  })
+
+  test(`${surface}: the footer keeps what is beneath it, then the meter`, async ($, on) => {
+    engine(on, { modelSettings: { [MODEL]: { effortLevel: 'high' } } })
+    const footer = await $.ui.mount({ ...FOOTER, surface, props: { modes: ['focus'] } })
+    expect(await footer.find({ type: 'Text', text: 'focus' })).toBeDefined()
+    expect(await footer.find({ type: 'Text', text: 'budget meter' })).toBeDefined()
+    expect(await footer.findAll({ type: 'Text', text: '▰' })).toHaveLength(3)
   })
 }
 

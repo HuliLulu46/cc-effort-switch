@@ -73,9 +73,10 @@ export const register: Register = on => {
     return ran
   }).catch(($, e, next) => next(e))
 
-  // The engine's modes stay as it draws them, then a meter: one cell per level, filled up to the
+  // What the engine and other mods draw stays, then a meter: one cell per level, filled up to the
   // current one in its heat color, and the level's word padded so the footer does not shift.
-  on('ui.render', { component: 'SessionMode' }, async ($, e) => {
+  on('ui.render', { component: 'SessionMode' }, async ($, e, next) => {
+    const below = await next(e)
     const { Box, Text } = $.ui.resolve(e)
     const level = await shownLevel($, await $.session.model())
     const isPicked = (await read($, override)) !== null
@@ -84,7 +85,8 @@ export const register: Register = on => {
 
     return (
       <Box>
-        {e.props.modes.length > 0 && <Text dimColor>{e.props.modes.join(' & ')} · </Text>}
+        {below}
+        {e.props.modes.length > 0 && <Text dimColor> · </Text>}
         <Text dimColor>effort </Text>
         {LEVELS.map((_, i) =>
           i < filled ? <Text color={color}>▰</Text> : <Text dimColor>▱</Text>,
